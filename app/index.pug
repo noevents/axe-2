@@ -1,0 +1,35 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    meta(http-equiv="X-UA-Compatible", content="ie=edge")
+    link(href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet")
+    link(href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAALCwsAAAAAADMzMwACAgIACAgIAA8PDwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAERERERERERERERERERERERERERERERERERMRERERERERERERERERERERERERERERERERMRUREREREREREREREREREREREREREREREREREREREREREUEREREREREREBERERERERERAREREREREREREREREREREREhERERERERERH//wAA//8AAMABAADgAQAA8AEAAPgBAAD8AQAA/8EAAP/BAAD/wQAA/8EAAP/hAAD/8QAA//kAAP/9AAD//wAA" rel="icon" type="image/x-icon")
+    link(href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/5.0.0/sanitize.min.css" rel="stylesheet")
+    title axe-2
+  body
+    .wrapper
+      .initial
+        span a:
+        select#a(name="a" placeholder="a" value="6")
+          option 6
+          option 7
+          option 8
+          option 9
+        span b:
+        select#b(name="b" placeholder="b" value="11")
+          option 11
+          option 12
+          option 13
+          option 14
+        button#submit init->
+      .equation
+        .sign 7
+        .sign +
+        .sign 4
+        .sign =
+        input.sign.result(placeholder="?")
+      #input-container
+      canvas#axe(width="875px" height="400")
+      img#axe-sprite.hidden(src="images/sprite.png")
