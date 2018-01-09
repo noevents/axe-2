@@ -11,25 +11,13 @@ html(lang="en")
   body
     .wrapper
       .initial
-        span a:
-        select#a(name="a" placeholder="a" value="6")
-          option 6
-          option 7
-          option 8
-          option 9
-        span b:
-        select#b(name="b" placeholder="b" value="11")
-          option 11
-          option 12
-          option 13
-          option 14
-        button#submit init->
+        button#init-btn случайное значение->
       .equation
-        .sign 7
+        #first-digit.sign _
         .sign +
-        .sign 4
+        #second-digit.sign _
         .sign =
-        input.sign.result(placeholder="?")
+        #result.sign ?
       #input-container
       canvas#axe(width="875px" height="400")
       img#axe-sprite.hidden(src="images/sprite.png")

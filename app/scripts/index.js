@@ -13,83 +13,144 @@ let bVal
 let points = []
 let arcs = []
 
-initApp()
-
-function initApp(){
-  const axe = document.getElementById('axe')
-  let submit = document.getElementById('submit')
-  
-  function handler(){
-    let pointA = document.getElementById('a')
-    let pointB = document.getElementById('b')
-    aVal = pointA.value
-    bVal = pointB.value
-    initialState(aVal, bVal)
-      .then(()=>{
-        console.log('done')
-      })
-  }
-
-  submit.addEventListener('click', handler)
-  
-  paper.setup(axe)
-  let raster = new paper.Raster('axe-sprite')
-  raster.position = paper.view.center
-
-  let a
-  // coordinates of 0 on axe
-  let zeroX = 36
-  const zeroY = 176
-  // points to 0 on axe
-  points.push(new paper.Point(zeroX, zeroY))
-  
-  //filling array of points
-  for(let i=0; i<20; i++){
-    points.push(new paper.Point(zeroX=zeroX+39, zeroY))
-  }
-  paper.view.draw()
-}
-
-// let state = 'init'
-
-function initialState(pointA, pointB) {
-  let inputContainer = document.getElementById('input-container')
-  while (inputContainer.firstChild) {
-    inputContainer.removeChild(inputContainer.firstChild);
-  }
-  return new Promise((resolve, reject)=>{
-    arcs.map( arc => arc.remove())
-    let through = new paper.Point((points[pointA].x - points[0].x)/2, 80)
-    let path = new paper.Path.Arc(points[0], through, points[pointA])
-    path.strokeColor = 'red';
-    arcs.push(path)
+class App {
+  constructor () {
+    // coordinates of 0 on canvas axe
+    this.zeroX = 36
+    this.zeroY = 176
+    this.points = []
+    this.arcs = []
     
+    this.axe = document.getElementById('axe')
+    this.initBtn = document.getElementById('init-btn')
+    this.firstDigit = document.getElementById('first-digit')
+    this.secondDigit = document.getElementById('second-digit')
+    this.inputContainer = document.getElementById('input-container')
+    this.result = document.getElementById('result')
+    this.aVal = null
+    this.bVal = null
+  }
+  randomInteger(min, max) {
+    let rand = min - 0.5 + Math.random() * (max - min + 1)
+    rand = Math.round(rand);
+    return rand;
+  }
+  
+  raiseError(where){
+    this[where].style.backgroundColor = 'orange'
+  }
+  resetStyle(where){
+    this[where].style.backgroundColor = ''
+  }
+  createInput(positionX, positionY, which) {
     let valueInput = document.createElement('input')
     valueInput.className = 'value-input'
-    valueInput.style.left = `${through.x+20}px`
+    valueInput.style.top = `${positionY}px`
+    valueInput.style.left = `${positionX}px`
     valueInput.addEventListener('input', (e)=>{
       e.preventDefault()
-      if(e.data !== aVal) {
-        raiseError()
-      } else {
-        // render value
-        resolve()
-      }
+      this.inputChecker(e.data, valueInput, which)
     })
-    inputContainer.appendChild(valueInput)
-  })
-}
+    return valueInput
+  }
+  renderArc(from, to, height){
+    let through = new paper.Point(from.x+((to.x - from.x)/2), height)
+    let path = new paper.Path.Arc(from, through, to)
+    path.strokeColor = 'red';
+    this.arcs.push(path)
+    return through
+  }
+  inputChecker(val, input, digit) {
+    let check = (digit === 'firstDigit') ? this.aVal : this.bVal
+    if(+val !== check) {
+      this.raiseError(digit)
+      input.style.color = 'red'
+    } else {
+      this.resetStyle(digit)
+      // render value
+      let inputReplacer = document.createElement('span')
+      inputReplacer.className = input.className
+      inputReplacer.style.top = input.style.top
+      inputReplacer.style.left = input.style.left
+      inputReplacer.innerHTML = val
+      input.parentNode.replaceChild(inputReplacer, input);
+      
+      this.nextState(digit)
+    }
+  }
+  initialState() {
+    // clear prev
+    this.result = document.getElementById('result')
+    this.result.innerHTML = '?'
+    this.firstDigit.innerHTML = this.aVal
+    this.secondDigit.innerHTML = this.bVal
+    while (this.inputContainer.firstChild) {
+      this.inputContainer.removeChild(this.inputContainer.firstChild);
+    }
+    this.arcs.map( arc => arc.remove())
+    
+    let through = this.renderArc(this.points[0], this.points[this.aVal], 80)
+    this.inputContainer.appendChild(this.createInput(through.x-10, 0, 'firstDigit'))
+  }
 
-function raiseError(){
+  nextState(currentDigit) {
+    if(currentDigit === 'firstDigit'){
+      let through = this.renderArc(this.points[this.aVal], this.points[this.bVal+this.aVal], 120)
+      this.inputContainer.appendChild(this.createInput(through.x-10, 40, 'secondDigit'))
+    } else {
+      // show final input
+
+      let finalInput = document.createElement('input')
+      finalInput.className = this.result.className
+      let result = ''
+      finalInput.addEventListener('input', (e)=>{
+        e.preventDefault()
+        finalInput.style.color = ''
+        
+        result = result+e.data
+        
+        if(result.length < 2) return
+
+        if(+result === +this.aVal+this.bVal) {
+          let finalInputReplacer = document.createElement('span')
+          finalInputReplacer.className = this.result.className
+          finalInputReplacer.id = this.result.id
+          finalInputReplacer.innerHTML = result
+          finalInput.parentNode.replaceChild(finalInputReplacer, finalInput);
+        } else {
+          result = ''
+          finalInput.style.color = 'red'
+        }
+      })
+
+      this.result.parentNode.replaceChild(finalInput, this.result)
+    }
+  }
+
+  init() {
+
+    this.initBtn.addEventListener('click', ()=>{
+      this.aVal = this.randomInteger(6, 9)
+      this.bVal = this.randomInteger(11, 14) - this.aVal
+      this.initialState()
+    })
   
-}
-
-
-// handlers for different stages of the app
-function secondStage(){
+    paper.setup(this.axe)
+    let raster = new paper.Raster('axe-sprite')
+    raster.position = paper.view.center
   
-}
-function finalStage(){
+    // points to 0 on axe
+    this.points.push(new paper.Point(this.zeroX, this.zeroY))
   
+    //filling array of points
+    for(let i=0; i<20; i++){
+      this.points.push(new paper.Point(this.zeroX=this.zeroX+39, this.zeroY))
+    }
+
+    paper.view.draw()
+  }
 }
 
+let app = new App()
+
+app.init()
